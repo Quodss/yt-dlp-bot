@@ -19,11 +19,11 @@ class UrlService:
         self._log = logging.getLogger(self.__class__.__name__)
         self._rmq_publisher = RmqPublisher()
 
-    async def process_urls(self, urls: list[URL]) -> None:
+    async def process_urls(self, urls: list[URL], only_audio=False) -> None:
         for url in urls:
-            await self._send_to_worker(url)
+            await self._send_to_worker(url, only_audio=only_audio)
 
-    async def _send_to_worker(self, url: URL) -> bool:
+    async def _send_to_worker(self, url: URL, only_audio=False) -> bool:
         payload = InbMediaPayload(
             url=url.url,
             original_url=url.original_url,
@@ -34,7 +34,7 @@ class UrlService:
             from_chat_type=url.from_chat_type,
             source=TaskSource.BOT,
             save_to_storage=url.save_to_storage,
-            download_media_type=url.download_media_type,
+            download_media_type= 'AUDIO' if only_audio else url.download_media_type,
             custom_filename=None,
             automatic_extension=False,
         )

@@ -33,7 +33,11 @@ class TelegramCallback:
         if not text:
             self._log.debug('Forwarded message, skipping')
             return
-
+        COMMAND = '/audio'
+        ONLY_AUDIO = False
+        if COMMAND == text[:len(COMMAND)]:
+            text = text[len(COMMAND):]
+            ONLY_AUDIO = True
         urls = text.splitlines()
         user = client.allowed_users[get_user_id(message)]
         if user.use_url_regex_match:
@@ -53,7 +57,7 @@ class TelegramCallback:
             'ack_message': ack_message,
         }
         url_objects = self._url_parser.parse_urls(urls=urls, context=context)
-        await self._url_service.process_urls(url_objects)
+        await self._url_service.process_urls(url_objects, only_audio=ONLY_AUDIO)
 
     async def _send_acknowledge_message(
         self,
